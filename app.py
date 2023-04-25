@@ -101,6 +101,7 @@ def main():
 
 def search(query, index_name="document-chunks"):
     embedding = create_embedding(query)
+    pinecone.init(api_key=pinecone_api_key, environment="us-east1-gcp")
     index = pinecone.Index(index_name)
     results = index.query(queries=[embedding], top_k=1)
     nearest_chunk_id = results["results"][0]["matches"][0]["id"]
