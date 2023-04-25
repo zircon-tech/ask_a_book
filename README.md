@@ -32,9 +32,23 @@ Replace <your_openai_api_key> and <your_pinecone_api_key> with your respective A
 
 Create a folder named working in the project root directory. Place the file you want to read text from in this folder.
 ## Usage
+
+### Process
+
+Before querying the AI, you'll need to feed it data.
+
+Run `python process.py [file_name]`
+
+
+Example: `python process.py codigo-penal.pdf`
+
 Run the script with the following command:
 <pre>python app.py file</pre>
-Replace <file> with the name of the file you want to read text from. The file should be located in the working directory.
+Replace <file> with the name of the file you want to read text from. The file should be located in the `working` directory.
+
+### Querying
+
+Run `python app.py [file_name]`
 
 Enter your question when prompted:
 <pre>
