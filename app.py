@@ -14,6 +14,8 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 pinecone_api_key = os.environ.get("PINECONE_API_KEY")
 
+pinecone.init(api_key=pinecone_api_key, environment="us-west4-gcp")
+
 
 def create_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")
@@ -49,6 +51,7 @@ def main():
     input_folder = "working"
     file_path = os.path.join(input_folder, args.file)
     file_ext = os.path.splitext(file_path)[1].lower()
+    file_name = os.path.splitext(os.path.basename(file_path))[0]
 
     if file_ext == '.txt':
         text = read_txt(file_path)
@@ -66,14 +69,15 @@ def main():
         embedding = create_embedding(chunk)
         embeddings.append(embedding)
 
-    index_name = "document-chunks"
-    pinecone.init(api_key=pinecone_api_key, environment="us-east1-gcp")
+    index_name = f"document-chunks-{file_name}"
+
+    pinecone.init(api_key=pinecone_api_key, environment="us-west4-gcp")
     if index_name not in pinecone.list_indexes():
         embeddings = np.array(embeddings)
         dimension = embeddings[0].shape[0]
         pinecone.create_index(index_name, metric="cosine", dimension=dimension)
 
-    index = pinecone.Index('document-chunks')
+    index = pinecone.Index(index_name)
 
     upserts = [(f"chunk-{i}", embedding)
                for i, embedding in enumerate(embeddings)]
@@ -101,7 +105,7 @@ def main():
 
 def search(query, index_name="document-chunks"):
     embedding = create_embedding(query)
-    pinecone.init(api_key=pinecone_api_key, environment="us-east1-gcp")
+    pinecone.init(api_key=pinecone_api_key, environment="us-west4-gcp")
     index = pinecone.Index(index_name)
     results = index.query(queries=[embedding], top_k=1)
     nearest_chunk_id = results["results"][0]["matches"][0]["id"]
